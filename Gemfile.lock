@@ -1,0 +1,20 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    awesome_print (1.9.2)
+    faraday (2.7.10)
+      faraday-net_http (>= 2.0, < 3.1)
+      ruby2_keywords (>= 0.0.4)
+    faraday-net_http (3.0.2)
+    ruby2_keywords (0.0.5)
+
+PLATFORMS
+  x86_64-darwin-22
+  x86_64-linux-musl
+
+DEPENDENCIES
+  awesome_print (~> 1.9)
+  faraday (~> 2.7)
+
+BUNDLED WITH
+   2.4.10

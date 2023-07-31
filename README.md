@@ -7,7 +7,7 @@ If you are using nomad to run your services, you can use this script to clean up
 ### Docker
 
 ```bash
-docker run -d --name nomad-invalid-services-cleaner:main \
+docker run -d --name nomad-invalid-services-cleaner:0.1 \
   -e NOMAD_ENDPOINT=http://172.16.11.231 \
   -e NOMAD_VERSION=v1 \
   -e NOMAD_TOKEN=secret_token \
@@ -35,7 +35,7 @@ job "nomad-invalid-services-cleaner" {
       driver = "docker"
 
       config {
-        image = "ghcr.io/icyleaf/nomad-invalid-services-cleaner:main"
+        image = "ghcr.io/icyleaf/nomad-invalid-services-cleaner:0.1"
       }
 
       template {
@@ -72,7 +72,7 @@ job "nomad-invalid-services-cleaner" {
       driver = "docker"
 
       config {
-        image = "ghcr.io/icyleaf/nomad-invalid-services-cleaner:main"
+        image = "ghcr.io/icyleaf/nomad-invalid-services-cleaner:0.1"
       }
 
       template {

@@ -1,0 +1,22 @@
+# docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# project
+.travis.yml
+.editorconfig
+.rubocop.yml
+.ruby-gemset
+.ruby-version
+.*env
+.powenv
+.rvmrc
+.byebug_history
+.history
+.bundle
+.vscode
+.DS_Store
+.ruby-gemset
+.ruby-version
+.codeclimate.yml

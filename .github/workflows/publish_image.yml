@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: write
-      contents: read
+      contents: write
 
     strategy:
       matrix:
@@ -49,3 +49,9 @@ jobs:
         labels: ${{ steps.metadata.outputs.labels }}
         tags: ${{ steps.metadata.outputs.tags }}
         platforms: ${{ matrix.platform }}
+
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        generateReleaseNotes: true

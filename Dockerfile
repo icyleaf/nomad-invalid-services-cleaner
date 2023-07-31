@@ -12,5 +12,4 @@ RUN bundle config --global frozen 1 && \
 
 COPY . .
 
-
 CMD ["bundle", "exec", "ruby", "main.rb"]

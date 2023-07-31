@@ -95,3 +95,22 @@ job "nomad-invalid-services-cleaner" {
   }
 }
 ```
+
+## Output
+
+### All good
+
+```
+I, [2023-07-31T11:50:41.151197 #1]  INFO -- : Starting nomad invalid services runner ...
+I, [2023-07-31T11:50:41.176254 #1]  INFO -- : Found 57 services in namespace: default
+I, [2023-07-31T11:50:41.357723 #1]  INFO -- : All services is good!
+```
+
+### Found issue
+
+```
+I, [2023-07-31T11:50:41.151197 #1]  INFO -- : Starting nomad invalid services runner ...
+I, [2023-07-31T11:50:41.176254 #1]  INFO -- : Found 57 services in namespace: default
+I, [2023-07-31T11:50:52.211327 #1]  INFO -- : Deleted invalid service sample-service (_nomad-task-4cb7a77c-d98e-8586-fef0-892000445f84-group-sample-service-web)
+I, [2023-07-31T11:51:00.357723 #1]  INFO -- : Found 1 invalid services to clean up: sample-service
+```

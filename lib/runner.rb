@@ -17,7 +17,7 @@ class Runner
 
     run_loop(interval) do
       invalid_services = []
-      nomad_services = client.services
+      nomad_services = client.services(**{ namespace: "*" })
       nomad_services.each do |namespace|
         namespace_name = namespace["Namespace"]
         services = namespace["Services"]
@@ -71,12 +71,12 @@ class Runner
         logger.debug "service: #{name}, index: #{service_index}, allocation_id: #{allocation_id}, data_center: #{data_center}, namespace: #{namespace_name}, address: #{address}, port: #{port}"
 
         begin
-          client.allocation(allocation_id)
+          client.allocation(allocation_id, **{ namespace: namespace })
         rescue
           logger.debug "Found invalid service #{name} (#{service_id}), allocation was not exists with id: #{allocation_id}"
           invalid_services << name
 
-          deleted_success = client.delete_service(name, service_id)
+          deleted_success = client.delete_service(name, service_id, **{ namespace: namespace })
           if deleted_success
             logger.info "Deleted invalid service #{name} (#{service_id})"
           else

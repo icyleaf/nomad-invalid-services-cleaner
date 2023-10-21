@@ -13,20 +13,20 @@ class Nomad
     @logger = logger
   end
 
-  def services
-    _get("services")
+  def services(**params)
+    _get("services", **params)
   end
 
   def service(name, **params)
     _get("service/#{name}", **params)
   end
 
-  def delete_service(name, id)
-    _delete("service/#{name}/#{id}")
+  def delete_service(name, id, **params)
+    _delete("service/#{name}/#{id}", **params)
   end
 
-  def allocation(id)
-    _get("allocation/#{id}")
+  def allocation(id, **params)
+    _get("allocation/#{id}", **params)
   end
 
   def token?

@@ -14,7 +14,7 @@ class Nomad
   end
 
   def services
-    _get("services")
+    _get("services?namespace=*")
   end
 
   def service(name, **params)

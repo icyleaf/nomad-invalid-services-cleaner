@@ -25,6 +25,10 @@ class Nomad
     _get("job/#{name}/allocations", **params)
   end
 
+  def job_services(name, **params)
+    _get("job/#{name}/services", **params)
+  end
+
   def services(**params)
     _get("services", **params)
   end
@@ -100,10 +104,20 @@ class Nomad
   end
 
   def connection
-    @connection ||= Faraday.new(url: @endpoint) do |f|
+    @connection ||= Faraday.new(url: @endpoint, request: request_options) do |f|
       f.request :authorization, 'Bearer', @token if token?
       f.response :json
       f.response :logger, nil, { bodies: true, log_level: :debug } if ENV["VERBOSE_MODE"] == "true"
     end
+  end
+
+  def request_options
+    timeout = (ENV["NOMAD_API_TIMEOUT"] || 30).to_i
+
+    @request_options ||= {
+      open_timeout: timeout,
+      read_timeout: timeout,
+      write_timeout: timeout
+    }
   end
 end

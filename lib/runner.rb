@@ -13,26 +13,35 @@ class Runner
     interval = ENV.fetch("NOMAD_RUNNER_INTERVAL", "60").to_i
 
     logger.info "Starting nomad invalid services runner ..."
-    logger.debug "endpoint: #{client.endpoint}, version: #{client.version}, token: #{client.token?}"
+    logger.debug "Configuation with endpoint: #{client.endpoint}, version: #{client.version}, token: #{client.token?}"
 
     run_loop(interval) do
       invalid_services = []
-      nomad_services = client.services(**{ namespace: "*" })
-      nomad_services.each do |namespace|
-        namespace_name = namespace["Namespace"]
-        services = namespace["Services"]
+      jobs = client.jobs(namespace: "*")
+      jobs.each do |job_entry|
+        job_id = job_entry["ID"]
+        namespace = job_entry["Namespace"]
 
-        logger.info "Found #{services.size} services in namespace: #{namespace_name}"
-        inview_services(services, invalid_services, namespace_name)
-
-        if invalid_services.empty?
-          logger.info "All services is good!"
-        else
-          logger.info "Found #{invalid_services.size} invalid services to clean up: #{invalid_services.join(", ")}"
+        job_allocations = client.job_allocations(job_id, namespace: namespace)
+        job_allocations.each do |allocation_entry|
+          allocation_id = allocation_entry["ID"]
+          allocation = client.allocation(allocation_id, namespace: namespace)
+          task_groups = allocation["Job"]["TaskGroups"]
+          task_groups.each do |task_group|
+            task_services = task_group["Services"]
+            logger.info "Job #{job_id} in allocation #{allocation_id} found #{task_services.size} services in namespace: #{namespace}"
+            inview_services(allocation, task_services, invalid_services, namespace)
+          end
         end
       end
+
+      if invalid_services.empty?
+        logger.info "All services is good!"
+      else
+        logger.info "Found #{invalid_services.size} invalid services to clean up: #{invalid_services.join(", ")}"
+      end
     end
-  rescue Nomad::NotAuthorizedError => e
+  rescue Nomad::NotAuthorizedError
     if client.token?
       logger.error "Invalid nomad token or missing ACL policies: namespace:read-job and namespace:submit-job"
     else
@@ -41,7 +50,7 @@ class Runner
 
     exit
   rescue Nomad::ResponseError => e
-    logger.error "Unknown response error: #{e.message}"
+    logger.error "Unknown response error: #{e.message} in #{e.response.env.url}"
     exit
   rescue URI::BadURIError => e
     logger.error "Invalid nomad endpoint: #{client.endpoint}. it must be a valid URI: http(s)://nomad.example.com or http(s)://127.0.0.1:4646"
@@ -53,11 +62,19 @@ class Runner
 
   private
 
-  def inview_services(services, invalid_services, namespace)
+  def inview_services(allocation, services, invalid_services, namespace)
+    allocation_id = allocation["ID"]
+    job_id = allocation["Job"]["ID"]
     services.each do |service|
-      name = service["ServiceName"]
-      published_services = client.service(service["ServiceName"], **{ namespace: namespace })
+      name = service["Name"]
+      published_services = client.service(name, namespace: namespace)
       published_service_count = published_services.size
+
+      if published_service_count.zero?
+        logger.info "Job #{job_id} in allocation #{allocation_id} services not found in facts, restart allocation"
+        client.restart_allocation(allocation_id, AllTasks: true)
+        next
+      end
 
       logger.debug "#{name} published #{published_service_count} services"
       published_services.each_with_index do |service_info, service_index|
@@ -71,7 +88,7 @@ class Runner
         logger.debug "service: #{name}, index: #{service_index}, allocation_id: #{allocation_id}, data_center: #{data_center}, namespace: #{namespace_name}, address: #{address}, port: #{port}"
 
         begin
-          client.allocation(allocation_id, **{ namespace: namespace })
+          client.allocation(allocation_id, namespace: namespace)
         rescue
           logger.debug "Found invalid service #{name} (#{service_id}), allocation was not exists with id: #{allocation_id}"
           invalid_services << name

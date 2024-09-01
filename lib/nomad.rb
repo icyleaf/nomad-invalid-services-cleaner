@@ -13,6 +13,18 @@ class Nomad
     @logger = logger
   end
 
+  def jobs(**params)
+    _get("jobs", **params)
+  end
+
+  def job(name, **params)
+    _get("job/#{name}", **params)
+  end
+
+  def job_allocations(name, **params)
+    _get("job/#{name}/allocations", **params)
+  end
+
   def services(**params)
     _get("services", **params)
   end
@@ -29,17 +41,38 @@ class Nomad
     _get("allocation/#{id}", **params)
   end
 
+  def restart_allocation(id, **params)
+    _post("client/allocation/#{id}/restart", **params)
+  end
+
   def token?
     !(@token.nil? || @token.empty?)
   end
 
-  class ResponseError < StandardError; end
+  class ResponseError < StandardError
+    attr_reader :response
+
+    def initialize(response)
+      super(response.body)
+
+      @response = response
+    end
+  end
+
   class NotAuthorizedError < ResponseError; end
 
   private
 
   def _get(path, **params)
     response = connection.get uri(path), **params
+
+    handle_response(response)
+  end
+
+  def _post(path, **params)
+    headers = params.delete(:headers) || { content_type: "application/json" }
+    params = params.to_json
+    response = connection.post uri(path), params, headers
 
     handle_response(response)
   end
@@ -53,12 +86,12 @@ class Nomad
     # @logger.debug "response status: #{response.status}, headers: #{response.headers}, body: #{response.body}, url: #{response.env.url}"
 
     case response.status
-    when 200
+    when 200, 204
       response.body
     when 403
-      raise NotAuthorizedError, response.body
+      raise NotAuthorizedError, response
     else
-      raise ResponseError, response.body
+      raise ResponseError, response
     end
   end
 

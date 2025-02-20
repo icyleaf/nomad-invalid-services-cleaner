@@ -11,6 +11,7 @@ GEM
 PLATFORMS
   aarch64-linux
   x86_64-darwin-22
+  x86_64-linux
   x86_64-linux-musl
 
 DEPENDENCIES
@@ -18,4 +19,4 @@ DEPENDENCIES
   faraday (~> 2.7)
 
 BUNDLED WITH
-   2.4.10
+   2.6.4

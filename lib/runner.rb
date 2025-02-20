@@ -69,6 +69,9 @@ class Runner
       job_type = job_entry["Type"]
       next if job_type != "service"
 
+      job_status = job_entry["Status"]
+      next if job_status != "running"
+
       job_id = job_entry["ID"]
       namespace = job_entry["Namespace"]
 

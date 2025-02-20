@@ -123,7 +123,7 @@ I, [2023-07-31T11:51:00.357723 #1]  INFO -- : Found 1 invalid services to clean 
 - NOMAD_ENDPOINT: `http://127.0.0.1`
 - NOMAD_VERSION: `v1` (default is `v1`)
 - NOMAD_TOKEN: `inserct-token`
-- NOMAD_API_TIMEOUT: `30` (default is `v1`)
+- NOMAD_API_TIMEOUT: `30` (default is `30`)
 - NOMAD_RUNNER_INTERVAL: `3600`
 - LOGGER_LEVEL: `error/info/debug`
 - NOMAD_IGNORE_RESTART_EMPTY_SERVICES: `true/false` (default is `false`)

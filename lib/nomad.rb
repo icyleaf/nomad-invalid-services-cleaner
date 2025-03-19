@@ -5,7 +5,7 @@ require "faraday"
 class Nomad
   attr_reader :endpoint, :version
 
-  def initialize(endpoint:, version: "v1", token: nil, logger:)
+  def initialize(endpoint:, logger:, version: "v1", token: nil)
     @endpoint = endpoint
     @version = version
     @token = token
@@ -43,6 +43,10 @@ class Nomad
 
   def allocation(id, **params)
     _get("allocation/#{id}", **params)
+  end
+
+  def stop_allocation(id, **params)
+    _post("allocation/#{id}/stop", **params)
   end
 
   def restart_allocation(id, **params)

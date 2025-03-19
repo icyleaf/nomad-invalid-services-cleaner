@@ -2,6 +2,12 @@
 
 source "https://rubygems.org"
 
-gem "faraday", "~> 2.7"
 gem "base64"
-gem "awesome_print", "~> 1.9", :group => :development
+gem "faraday", "~> 2.7"
+
+group :development do
+  gem "awesome_print", "~> 1.9"
+  gem "ruby-lsp"
+  gem "rubocop"
+  gem "debug"
+end
